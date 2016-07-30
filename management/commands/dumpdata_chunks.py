@@ -113,6 +113,7 @@ class Command(BaseCommand):
             model_count += 1 
             if model in excluded_models:
                 continue
+            pk_name = model._meta.pk.name or 'id'
             if not model._meta.proxy and router.allow_syncdb(using, model):
                 if use_base_manager:
                     objects.extend(model._base_manager.using(using).all())
@@ -120,7 +121,7 @@ class Command(BaseCommand):
                     items_total = model._default_manager.using(using).count()
                     chunks_total = (items_total / max_records_per_chunk) +1
                     for chunk_num in range(0, chunks_total):
-                        output_objects = model._default_manager.using(using).all().order_by('id')[chunk_num*max_records_per_chunk:(chunk_num+1)*max_records_per_chunk]
+                        output_objects = model._default_manager.using(using).all().order_by(pk_name)[chunk_num*max_records_per_chunk:(chunk_num+1)*max_records_per_chunk]
                         if output_objects:
                             chunk_count += 1 
                             dump_file_name = output_folder + "/%d_%d.json" % (model_count, chunk_count)
